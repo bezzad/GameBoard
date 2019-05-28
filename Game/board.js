@@ -18,9 +18,10 @@ var Board = (function () {
         this.startPointY = y;
         var result = [];
         while (Object.keys(this.groups).length > 1) {
-            var neighbors = this.getNeighborsColor(x, y);
-            neighbors.forEach(function (n) {
-            });
+            var currentGroup = this.getGroup(x, y);
+            var gs = this.getGroupNeighbors(currentGroup);
+            var longestGroupIndex = gs.map(function (a) { return a.length; }).indexOf(Math.max.apply(Math, gs.map(function (a) { return a.length; })));
+            currentGroup = this.groupBygroup(currentGroup, gs[longestGroupIndex]);
         }
     };
     Board.prototype.getGroups = function () {
@@ -41,12 +42,21 @@ var Board = (function () {
         group.push([i, j]);
         return group;
     };
+    Board.prototype.groupBygroup = function (group1, group2) {
+        group2.forEach(function (g2el) {
+            group1.push(g2el);
+        });
+        return group1;
+    };
     Board.prototype.getGroup = function (i, j) {
-        var index = this.pointsGroupIndex[i][j];
+        var index = this.getGroupIndex(i, j);
         if (index == null) {
-            index = this.pointsGroupIndex[i][j] = this.groups.push([i, j]) - 1;
+            index = this.pointsGroupIndex[i][j] = this.groups.push([[i, j]]) - 1;
         }
         return this.groups[index];
+    };
+    Board.prototype.getGroupIndex = function (i, j) {
+        return this.pointsGroupIndex[i][j];
     };
     Board.prototype.getNeighborsColor = function (pointX, pointY) {
         var result = new Array(4);
@@ -67,6 +77,16 @@ var Board = (function () {
             result[3] = this.boardMatrix[pointX][pointY + 1];
         }
         return result;
+    };
+    Board.prototype.getGroupNeighbors = function (group) {
+        var _this = this;
+        var resGroups = [];
+        group.forEach(function (ij) {
+            var index = _this.getGroupIndex(ij[0], ij[1]);
+            if (!resGroups.hasOwnProperty(index))
+                resGroups.push(index);
+        });
+        return resGroups.map(function (i) { return _this.groups[i]; });
     };
     Board.prototype.cloneMatrix = function (matrix) {
         var clonedMatrix = matrix.map(function (arr) {

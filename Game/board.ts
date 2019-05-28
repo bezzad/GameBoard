@@ -62,11 +62,15 @@ export class Board {
     }
 
     getGroup(i, j): any[] {
-        let index = this.pointsGroupIndex[i][j];
+        let index = this.getGroupIndex(i, j);
         if (index == null) {
             index = this.pointsGroupIndex[i][j] = this.groups.push([[i, j]]) - 1;
         }
         return this.groups[index];
+    }
+
+    getGroupIndex(i, j): number {
+        return this.pointsGroupIndex[i][j];
     }
 
     //       ___
@@ -76,7 +80,7 @@ export class Board {
     //                      V
     //                      Y+
     //      
-    getNeighborsColor(pointX: number, pointY: number): string[] {
+    getNeighborsColor(pointX: number, pointY: number): any[] {
         let result = new Array(4);
         let hasUpRow = pointY - 1 >= 0;
         let hasDownRow = pointY + 1 < this.boardMatrix.length;
@@ -100,7 +104,13 @@ export class Board {
     }
 
     getGroupNeighbors(group): any[] {
-
+        var resGroups = [];
+        group.forEach(ij => {
+            let index = this.getGroupIndex(ij[0], ij[1]);
+            if (!resGroups.hasOwnProperty(index))
+                resGroups.push(index);
+        });
+        return resGroups.map(i => this.groups[i]);
     }
 
     cloneMatrix(matrix: any[][]): any[][] {
